@@ -1,0 +1,210 @@
+Agenda
+	Meta arguments -> controling the execution of the terraform
+		dependancy -> dependancy on other resource
+			implicicit/direct 
+				using references to other resources
+				
+				
+			resource "local_file" "f3" {
+			  filename = "123.txt"
+			  content  = "test"
+			}
+			resource "local_file" "f2" {
+			  filename = "12325.txt"
+			  content  = local_file.f3.id
+			}
+			resource "local_file" "f4" {
+			  filename = local_file.f2.id
+			  content  = local_file.f3.id
+			  
+			}
+		
+			resource "local_file" "f1" {
+			  filename = "15342541"
+			  content  = "sgfj"
+			}
+		
+			explicit/ indirect 
+				we will be mentioning the resources as dependencies 
+					depends_on=<list of dependant resouces>
+					
+			resource "local_file" "f3" {
+				  filename = "123.txt"
+				  content  = "test"
+				}
+				
+			resource "local_file" "f1" {
+			  filename = "15342541"
+			  content  = "sgfj"
+			}
+			
+			resource "local_file" "f5" {
+			  filename = "rjgzhjb"
+			  content  = "sgfj"
+			  depends_on=[local_file.f3,local_file.f1]
+			}
+				
+				
+		life cycle
+			destroy and then create
+			
+			create before destroy
+					lifecycle{
+						create_before_destroy = true
+					}
+			prevent destroy
+				creates a lock on the resource and doesnt allow for modification 
+				lifecycle{
+					prevent_destroy = true
+				}
+			ignore canges & replace triggred by -> explore these 2 life cycle
+		
+		looping
+			resource "local_file" "f3" {
+			  filename = var.filename[2]
+			  content  = "test"
+			}
+			variable filename1 {
+				type = list(string)
+				default = ["a1","b1","c1"]
+			}
+				count
+					resource "local_file" "f8" {
+					  count = length(var.filename)
+					  filename = var.filename[count.index]
+					  content  = "test"
+					}
+				
+				for_each
+					resource "local_file" "f9" {
+					  filename = each.value
+					  for_each = toset(var.filename1)
+					  content  = "test"
+					}
+					variable filename1 {
+				type = list(string)
+				default = ["a1","b1","c1"]
+			}
+			
+			 -var='filename=["aaaa","bbb"]'
+				
+			
+developers.hashicorp.com
+-----------------------------------------------
+resource "local_file" "f3" {
+  filename = "123.txt"
+  content  = "testtdtd"
+}
+
+
+
+resource "local_file" "f2" {
+  filename = "12325.txt"
+  content  = local_file.f3.id
+}
+resource "local_file" "f4" {
+  filename = local_file.f2.id
+  content  = local_file.f3.id
+}
+resource "local_file" "f1" {
+  filename = "15342541"
+  content  = "shjkgjhkmhvggfbnvxjjg"
+}
+
+resource "local_file" "f5" {
+  filename   = "rjgzhjb"
+  content    = "sgfj"
+  depends_on = [local_file.f4]
+}
+
+
+
+variable "filename" {
+  type    = list(string)
+  default = ["a", "b", "c"]
+}
+resource "local_file" "f8" {
+  count    = length(var.filename)
+  filename = var.filename[count.index]
+  content  = "test"
+}
+
+
+resource "local_file" "f9" {
+  filename = each.value
+  for_each = toset(var.filename1)
+  content  = "test"
+}
+variable "filename1" {
+  type    = list(string)
+  default = ["a1", "b1", "c1"]
+}
+------------------------
+1874  mkdir 2407
+ 1875  cd 2407
+ 1876  vi res.tf
+ 1877  terraform init
+ 1878  terraform fmt
+ 1879  t apply
+ 1880  t destroy
+ 1881  vi res.tf
+ 1882  terraform fmt
+ 1883  t apply
+ 1884  t destroy
+ 1885  vi res.tf
+ 1886  t apply
+ 1887  ls
+ 1888  t destroy
+ 1889  vi res.tf
+ 1890  t apply
+ 1891  vi res.tf
+ 1892  t destroy
+ 1893  vi res.tf
+ 1894  t apply
+ 1895  vi res.tf
+ 1896  t apply
+ 1897  vi res.tf
+ 1898  t apply
+ 1899  vi res.tf
+ 1900  t apply
+ 1901  vi res.tf
+ 1902  t apply
+ 1903  t destroy
+ 1904  vi res.tf
+ 1905  t apply
+ 1906  vi res.tf
+ 1907  t validate
+ 1908  vi res.tf
+ 1909  t satate list
+ 1910  t state list
+ 1911  t destroy -target local_file.f5
+ 1912  vi res.tf
+ 1913  t destroy -target local_file.f5
+ 1914  t apply
+ 1915  t destroy -target local_file.f5
+ 1916  vi res.tf
+ 1917  t validate
+ 1918  vi res.tf
+ 1919  t validate
+ 1920  vi res.tf
+ 1921  terraform fmt
+ 1922  t apply
+ 1923  t state list
+ 1924  t apply -var filename=["a","b","c","d","e"]
+ 1925  t apply -var filename=[ "a", "b", "c", "d", "e"]
+ 1926  t apply -var -filename=[ "a", "b", "c", "d", "e"]
+ 1927  vi terraform.tfvars
+ 1928  t appl
+ 1929  t apply
+ 1930  vi terraform.tfvars
+ 1931  t apply
+ 1932  vi res.tf
+ 1933  terraform fmt
+ 1934  t apply
+ 1935  t state list
+ 1936  vi terraform.tfvars
+ 1937  t apply
+ 1938  t state list
+ 1939  t apply -var='filename=["aaaa","bbb"]'
+ 1940  t state list
+ 1941  cat res.tf

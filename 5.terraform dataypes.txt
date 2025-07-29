@@ -1,0 +1,188 @@
+Agenda
+	datatypes
+		defines wat kind of data a variable can hold
+		primitive 
+			string -> alpha numeric which can have symbols -> enclosed with in "
+				\n is used form multiline strings
+				type=string
+				default="test123"
+				default="test123\n
+				shgf"
+			number -> numeric values integer/decimal
+				type = number
+				default = 125
+				default = 10.5
+			boolean -> conditional data type 
+				true/false
+				type = bool
+				default = true
+			any -> default data type
+				default = 10
+				default = "test"
+				default = false
+		complex/composit/advanced
+			list -> list of similar values
+				type = list
+				default = ["test", 123, true, "test", 123]
+				
+				type = list(number)
+				default = [1,2,3,4,5, 2, 4, 7,1,2]
+			
+				type = list(list(number))
+				default = [[1,2],[3,4],[5,6]]
+				
+				var.varname[index]
+				var.varname[2] -> 3
+				
+				error scenario
+				
+				default = [1,2]
+				var.varname[2] -> error
+			
+				inject a list terraform.tfvars
+				varname = [1,2,5,6.7]
+			
+			set -> half depricated data type -> removes all duplicates 
+				type = set(number)
+				default = [1,2,3,4,5, 2, 4, 7,1,2]
+				default = [1,2,3,4,5,7]
+				var.varname[index]
+			
+			map -> key value datatype
+				type = map 
+				default = {
+					name="adi"
+					id =123
+					isactive = true
+				}
+				type = map(string)
+				default = {
+					name="adi"
+					id ="123"
+					isactive = "yes"
+				}
+				type = map(number)
+				default = {
+					id =12345
+					phone =43154431
+				}
+												map(list(string)
+				var.varname.keyname
+				var.varname.id
+				
+				error scenario
+				var.varname.phoneno
+				
+				inject a list terraform.tfvars
+				varname = { name = "test", dob = 123 }
+				
+			tuple -> list wrapped defined structure and fixed length
+			
+			object -> user defined datatype with map as the base
+			
+terraform apply -auto-approve
+
+-------------------------------------
+resource "local_file" "f5" {
+  filename = var.filename5[0]
+  content  = var.content
+}
+resource "local_file" "f6" {
+  filename = var.filename6[2]
+  content  = var.content
+}
+resource "local_file" "f7" {
+  filename = var.filename7.name
+  content  = var.content
+}
+resource "local_file" "f8" {
+  filename = var.filename8.id
+  content  = var.content
+}
+
+
+filename8 = { name = "test", dob = 123 }
+filename6 = [1]
+
+
+filename8 = { name = 4586, dob = 123 , id = 73541}
+filename6 = [1,986489,835696785,65]
+
+
+variable "filename5" {
+  type = list
+  default = ["test", 123, true, "test", 123]
+}
+
+variable "filename6" {
+  type = list(number)
+  default = [1,2,3,4,5, 2, 4, 7,1,2]
+}
+
+variable "filename7" {
+ type = map(string)
+				default = {
+					name="adi"
+					id ="123"
+					isactive = "yes"
+				}
+}
+variable "filename8" {
+  type = map(number)
+				default = {
+					id =12345
+					phone =43154431
+				}
+}
+
+resource "local_file" "f1" {
+  filename = var.filename1
+  content  = var.content
+}
+resource "local_file" "f2" {
+  filename = var.filename2
+  content  = var.content
+}resource "local_file" "f3" {
+  filename = var.filename3
+  content  = var.content
+}resource "local_file" "f4" {
+  filename = var.filename4
+  content  = var.content
+}
+
+variable "filename1" {
+  default = "abc2.txt"
+}
+
+variable "filename2" {
+  default = "abc1.txt"
+  type=string
+}
+
+variable "filename3" {
+  default = ture
+  type=bool
+}
+variable "filename4" {
+  default = 15
+  type=number
+}
+
+variable "content" {
+  default = 10
+  type = any
+}
+
+
+output variablename {
+	value = <value>
+
+}
+
+resource_type.res_name.configname
+
+output version{
+	value = 1.0
+}
+
+terraform output <varname>

@@ -1,0 +1,163 @@
+Agenda
+	for
+		to itterate throught list/map to peforem different operation
+		
+		for value in  <listname> : <operation>
+		
+		for key, value in <map name> : <operation>
+		
+			locals {
+				filename_upper =[for value in var.filename: upper(value)]
+				map_keys = [ for key, value in  var.filnamemap : upper(key) ]
+				map_values = [ for key, value in  var.filnamemap : upper(value) ]
+				map_upper = { for key, value in  var.filnamemap : key => upper(value) }
+			}
+			
+
+output a1{
+	 value = local.filename_upper
+} 			
+output a2{
+	 value = local.map_keys
+} 			
+output a3{
+	 value = local.map_values
+} 			
+output a4{
+	 value = local.map_upper
+} 			
+			
+
+variable "filename" {
+  type    = list(string)
+  default = ["a", "b", "c"]
+}
+resource "local_file" "f8" {
+  count    = length(local.filename_upper)
+  filename = local.filename_upper[count.index]
+  content  = "test"
+}
+
+variable filnamemap {
+  type    = map(string)
+  default = {
+	name ="a"
+	address = "b"
+	}
+}
+
+["name","address"]
+["a",'b"]
+-----------------------------
+console -> it is an interactive execution consule where u can try your configuration, funtions and different capabalities which doesnt involve providers
+	terraform console
+	
+functions
+	additional capabalities to run/ execute in a smoother way
+		numeric functions(math functions)
+			min, max, pow, abs, sum, avg, ceil, floor
+		string 
+			upper, lower, join, replace, substr
+		filesystem
+			abspath, file
+		date time
+			timestamp, formatdate
+		collection -> advanced datatypes
+			length, toset, sort, lookup, cantains, distinct, concat, sum
+			
+https://developer.hashicorp.com/terraform/language/functions
+---------------
+> min(15,20)
+15
+> max(15,20)
+20
+> abs(23.525)
+23.525
+> abs(-23.525)
+23.525
+> ceil(-23.525)
+-23
+> floor(-23.525)
+-24
+> pow(2,3)
+8
+> pow(3,2)
+9
+> pow(2,10)
+1024
+----------
+> lower("sjfgdsv")
+"sjfgdsv"
+> lower("sjfgdsvSGHKJNBKJCHGNDFJ")
+"sjfgdsvsghkjnbkjchgndfj"
+> join("_",["adi","karthik","gupta"])
+"adi_karthik_gupta"
+> join("...............",["adi","karthik","gupta"])
+"adi...............karthik...............gupta"
+> join("...............",sort(["adi","karthik","gupta"]))
+"adi...............gupta...............karthik"
+> join(".",sort(["adi","karthik","gupta"]))
+"adi.gupta.karthik"
+> replace("adikarthik","a","-")
+"-dik-rthik"
+> substr("adikarthik",3,8)
+"karthik"
+> substr("adikarthik",0,2)
+"ad"
+> substr("adikarthik",0,3)
+"adi"
+----------------------
+ abspath("../../../nginx.txt")
+"/home/nginx.txt"
+> abspath("../../nginx.txt")
+"/home/e182114/nginx.txt"
+> file("../../nginx.txt")
+
+-----------------
+
+> timestamp()
+"2025-07-25T02:59:09Z"
+> formatdate("DD_MMM_YYYY_hh_mm_ss", timestamp())
+"25_Jul_2025_03_00_36"
+-------> length("abc")
+3
+> sum([1,2,3])
+6
+> distinct(["a","cc", "b","sgfd","a","c","b"])
+tolist([
+  "a",
+  "cc",
+  "b",
+  "sgfd",
+  "c",
+])
+>
+> lookup({a="cc", b="sgfd"}, "a")
+"cc"
+> contains(["a","cc", "b","sgfd"], "a")
+true
+> contains(["a","cc", "b","sgfd"], "asdhgfh")
+false
+> sort(["a","cc", "b","sgfd"])
+tolist([
+  "a",
+  "b",
+  "cc",
+  "sgfd",
+])
+> toset(["a","cc", "b","sgfd","a","c","b"])
+toset([
+  "a",
+  "b",
+  "c",
+  "cc",
+  "sgfd",
+])
+> length(["a","cc", "b","sgfd","a","c","b"])
+7
+
+
+---------------
+az cli installation
+
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash

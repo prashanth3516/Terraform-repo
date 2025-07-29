@@ -1,0 +1,73 @@
+Agenda
+	modules
+		creating a proxy mechanism for the configuration.
+		tf init is needed for every new module addition during life cycle
+		modules will be installed.
+		
+		tree
+			main.tf -> all module definitions
+			variable, tfvars -> optional
+			config folders
+				res.tf -> all resource definitions
+				var, tfvars -> optional 
+		
+		module <module name>{
+			source=<sourceconfig>
+			custom variables
+		}
+		
+			source config
+				path
+				github repo
+				registry modules
+		main.tf
+			module m1{
+				source="./config"
+				f1="123.txt"
+				c1="content from module"
+			}
+			module m2{
+				source="./config"
+				f1="456.txt"
+				c1="content from module 2"
+			}
+			
+			module m3{
+				source="../2707"
+				
+			}
+			
+			module m4{
+				source="github.com/adikarthik/Terraform.git"
+				
+			}
+			
+			module m5{
+				source  = "Azure/vnet/azurerm"
+				version = "5.0.1"
+			}
+			output m1f1{
+				value = module.m1.fa1
+			}
+			
+			output m2f1 {
+				value = module.m2.fa1
+			}
+			
+		config
+			res.tf 
+				resource local_file f1 {
+					filename = var.f1
+					content = var.c1
+				}
+			
+				variable f1{
+					default = "abc.txt"
+				}
+				variable c1 {
+					default = "default content"
+				}
+				output fa1{
+					value = local_file.f1.id
+				}
+			terraform.tfvars

@@ -1,0 +1,229 @@
+Agenda
+	rg
+		location, name
+		
+		varibale rgname{
+			default = "teraformrg"
+		}
+		varibale location{
+			default = "West US 2"
+		}
+		resource "azurerm_resource_group" "example" {
+		  name     = var.rgname
+		  location = var.location
+		} 
+		azurerm_resource_group.example.name
+	vnet
+		varibale vnetname{
+			default = "vanettf"
+		}
+		varibale addressapce{
+			default = ["10.0.0.0/16"]
+			type = list(string)
+		}
+	resource "azurerm_virtual_network" "example" {
+	  name                = var.vnetname
+	  resource_group_name     = var.rgname
+		  location = var.location
+	  address_space       = var.addressapce
+	  }
+		name, rg, location, address space
+	snet
+	
+	variable snetname{
+			default = "snettf"
+		}
+		variable saddressapce{
+			default = ["10.0.1.0/24"]
+			type = list(string)
+		}
+	resource "azurerm_subnet" "example" {
+		  name                 = var.snetname
+		  resource_group_name  = azurerm_resource_group.example.name
+		  virtual_network_name = azurerm_virtual_network.example.name
+		  address_prefixes     = var.saddressapce
+}
+		name, rg,  address space, vnet
+	pip
+		name, rg, location, allocation type
+		variable pip{
+			default = "pipname"
+		}
+		resource "azurerm_public_ip" "example" {
+		  name                = var.pip
+		  resource_group_name = azurerm_resource_group.example.name
+		  location            = azurerm_resource_group.example.location
+		  allocation_method   = "Static"
+
+		}
+	nsg
+		name, rg, location, security rule(some fields)
+		variable nsg{
+			default = "nsgname"
+		}
+		resource "azurerm_network_security_group" "example" {
+		  name                = var.nsg
+		  location            = azurerm_resource_group.example.location
+		  resource_group_name = azurerm_resource_group.example.name
+
+		  security_rule {
+			name                       = "test123"
+			priority                   = 100
+			direction                  = "Inbound"
+			access                     = "Allow"
+			protocol                   = "Tcp"
+			source_port_range          = "*"
+			destination_port_range     = "22"
+			source_address_prefix      = "*"
+			destination_address_prefix = "*"
+		  }
+		  
+		  }
+  
+	nic
+		name, rg, location, ipconfig(pip, pvt ip)
+		nsg, dns
+			
+			variable nic{
+			default = "nicname"
+		}
+		variable ipconfigname{
+			default = "ipname"
+		}
+			resource "azurerm_network_interface" "example" {
+			  name                = var.nic
+			  location            = azurerm_resource_group.example.location
+			  resource_group_name = azurerm_resource_group.example.name
+
+			  ip_configuration {
+				name                          = var.ipconfigname
+				subnet_id                     = azurerm_subnet.example.id
+				private_ip_address_allocation = "Dynamic"
+			  }
+			}
+			
+			resource "azurerm_network_interface_security_group_association" "example" {
+			  network_interface_id      = azurerm_network_interface.example.id
+			  network_security_group_id = azurerm_network_security_group.example.id
+			}
+	vm 
+		name
+		image
+			publisher
+			offer
+			sku
+		size
+			D2ls_v5
+		ssh
+			ssh config
+		os disk
+			size, rw
+		vnet,snet, nic
+		pip
+		
+	ssh key
+		pem/pub
+	data disk
+		disk name, disk size, rw/ro
+------------------------
+
+resource "azurerm_network_interface_security_group_association" "example" {
+  network_interface_id      = azurerm_network_interface.example.id
+  network_security_group_id = azurerm_network_security_group.example.id
+}
+variable "nic" {
+  default = "nicname"
+}
+variable "ipconfigname" {
+  default = "ipname"
+}
+resource "azurerm_network_interface" "example" {
+  name                = var.nic
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  ip_configuration {
+    name                          = var.ipconfigname
+    subnet_id                     = azurerm_subnet.example.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+variable "nsg" {
+  default = "nsgname"
+}
+resource "azurerm_network_security_group" "example" {
+  name                = var.nsg
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  security_rule {
+    name                       = "test123"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+variable "pip" {
+  default = "pipname"
+}
+resource "azurerm_public_ip" "example" {
+  name                = var.pip
+  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.example.location
+  allocation_method   = "Static"
+
+}
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "4.37.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+variable "rgname" {
+  default = "teraformrg"
+}
+variable "location" {
+  default = "West US 2"
+}
+resource "azurerm_resource_group" "example" {
+  name     = var.rgname
+  location = var.location
+}
+
+variable "snetname" {
+  default = "snettf"
+}
+variable "saddressapce" {
+  default = ["10.0.1.0/24"]
+  type    = list(string)
+}
+resource "azurerm_subnet" "example" {
+  name                 = var.snetname
+  resource_group_name  = azurerm_resource_group.example.name
+  virtual_network_name = azurerm_virtual_network.example.name
+  address_prefixes     = var.saddressapce
+}
+variable "vnetname" {
+  default = "vanettf"
+}
+variable "addressapce" {
+  default = ["10.0.0.0/16"]
+  type    = list(string)
+}
+resource "azurerm_virtual_network" "example" {
+  name                = var.vnetname
+  resource_group_name = azurerm_resource_group.example.name
+  location            = var.location
+  address_space       = var.addressapce
+}

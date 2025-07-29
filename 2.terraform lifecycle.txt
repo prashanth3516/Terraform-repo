@@ -1,0 +1,127 @@
+Agenda
+	Lifecycle
+		code *
+			create tf config files to create resources with all configurations
+				.tf, *.auto.tfvars, terraform.tfvars
+			basic syntax
+				block_type [resource_type] name_of_the_resorce {
+					config_of_the_resource
+				}
+				
+			abc.txt -> this is my first resource
+			
+				block_type -> defines what kind of resource you are going to create
+					resource, data, varaible, output, function, lifecycle, local
+				resource_type -> what is going to be created
+					provider -> plugin to create a resource
+					resource -> wat resource u r going to create
+				name -> alphanumeric -> represents the resource whichis managed by terraform
+				configuration -> related to resources which you are going to create
+				
+				file.tf
+				resource local_file filecreateion {
+					filename = "abc.txt"
+					content = "this is my first resource"
+				}
+				
+				resource azurerm_resource_group rg {
+					name = "terraformrg"
+					location = "westus"
+				}
+				
+		init *
+			terraform init 
+				creats workspaces to start execution in tf
+					creats workspace (.terraform folder)
+					read all .tf/.tfvars files from the direcotry and collect all provider information
+					download the providers to the workspace (libraries/modules)
+		plan (optonal)
+			terraform plan
+				create a blue print for the configuration
+				validate syntax of the script
+				prints all the resources which are going to be created with all configurations
+			
+		
+		apply *
+			terraform apply 
+				actual resource creation 
+				all actions in plan (will be part) validate+plan
+				creates resources(first time), modifes the resource (subsequent applies)
+				creats .tfstate file -> holds all the information related to tf managed resources
+					
+		destroy (optional -> based on req)
+			deletes all the resources managed by tf
+			validate the syntax
+			sync the state file
+			plan for deletion
+			delete the resources
+			
+		code -> init -> plan -> apply -> delete
+		code -> apply -> destroy*
+		code -> apply
+
+terraform fmt -> formats the terraform file
+terrfaorm validate -> to validate the syntax
+
+tasks:	make a mistake in configration -> run validate -> correct and execute
+		create 3 .tf files with singles resources inside
+		create single tf file with 3 resources
+
+---------------------------
+resource "local_file" "filecreateion" {
+  filename = "abc.txt"
+  content  = "this is econbvbbndy "
+}
+
+resource "local_file" "filecreateion1" {
+  filename = "abc1.txt"
+  content  = "this is econbvbbndy "
+}
+--------------------------------
+ 1561  vi file.tf
+ 1562  ls -a
+ 1563  terraform init
+ 1564  ls -a
+ 1565  tree
+ 1566  tree -a
+ 1567  vi file.tf
+ 1568  terraform init
+ 1569  tree -a
+ 1570  terraform plan
+ 1571  vi file.tf
+ 1572  terraform plan
+ 1573  vi file.tf
+ 1574  terraform plan
+ 1575  vi file.tf
+ 1576  terraform plan
+ 1577  terraform apply
+ 1578  ls
+ 1579  cat abc.txt
+ 1580  vi file.tf
+ 1581  terraform apply
+ 1582  ls
+ 1583  cat abc.txt
+ 1584  ls
+ 1585  cat terraform.tfstate
+ 1586  cat terraform.tfstate.backup
+ 1587  vi file.tf
+ 1588  terraform apply
+ 1589  cat terraform.tfstate.backup
+ 1590  terraform destroy
+ 1591  ls
+ 1592  cat terraform.tfstate
+ 1593  terraform apply
+ 1594  ls
+ 1595  rm abc.txt
+ 1596  terraform destroy
+ 1597  cat terraform.tfstate
+ 1598  vi file.tf
+ 1599  terraform apply
+ 1600  cat terraform.tfstate
+ 1601  vi file.tf
+ 1602  terraform destroy
+ 1603  vi file.tf
+ 1604  terraform destroy
+ 1605  cat file.tf
+ 1606  terraform fmt
+ 1607  cat file.tf

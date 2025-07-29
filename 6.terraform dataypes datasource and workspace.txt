@@ -1,0 +1,140 @@
+Agenda
+	tuple
+		defined structure of array of elements
+		type = tuple([string, number, bool, list(number)])
+		default=["adi",123,true,[1,2,3]]
+		
+		error scenario
+		["adi",123"]
+		["adi",123,[1, 2 ,3],true]
+		
+		var.varname[index]
+		var.varname[2][1]
+		
+	object -> user defind datatype -> wrapper on map, it declares the key structure and type
+		type = object({
+			name = string
+			id = number
+			address = list(string)
+		})
+		default = {
+			name = "adi"
+			id = 123
+			address = ["marathalli","bangalore","560037"]
+		}
+	
+		var.varname.keyname
+		var.varname.address[1]
+		
+		
+		tfvars
+			varname = { name = "test", id = 456789, address = ["a1","a2","123"]}
+		error
+			{ name = "test", id = "four" , address = ["a1","a2","123"]}
+			{ house = "test", id = 456 , address = ["a1","a2","123"]}
+
+	
+resource "local_file" "f9" {
+  filename = var.filename9[3][1]
+  content  = var.content
+}
+
+variable "filename9" {
+  type = tuple([string, number, bool, list(number)])
+		default=["adi",123,true,[1,2,3]]
+}
+
+tfvars
+["adi",123"]
+["adi",123,true,["one",2,3]]
+["adi",123,true,[4,5,6]]
+
+
+resource "local_file" "f10" {
+  filename = var.filename10.id
+  content  = var.content
+}
+
+variable "filename10" {
+  type = object({
+			name = string
+			id = number
+			address = list(string)
+		})
+		default = {
+			name = "adi"
+			id = 123
+			address = ["marathalli","bangalore","560037"]
+		}
+}
+
+providers, resources
+-------------------------------------------------------------
+	data source -> read only resourceswhicu you are not manging via terraform, they can be used to get information or data for the execution
+		data <restype> <datasourcename>{
+			datasource config
+		}
+		
+		data "local_file" "d1" {
+			filename = path
+		}
+	
+		resource "local_file" "f1" {
+		  filename = "a1.txt"
+		  content  = data.local_file.d1.content
+		}
+ 
+vm creation -> resources
+	rg, vnet, subnet, nic, nsg, vm
+	
+rg, vnet, subnet, nsg
+
+	nic, vm
+
+task: random provider -> all datatypes
+		null provider
+----------------------------------------
+	workspace -> place where all tf execution happens
+		default
+		terraform workspace new <ws name>
+		terraform workspace new dev -> creates a new ws dev and swtch to the workspace
+				
+		terraform workspace select <wsname>
+		terraform workspace select default
+		terraform workspace select dev
+-------------------------------
+	 1810  t workspace list
+ 1811  t apply
+ 1812  terraform state list
+ 1813  ls
+ 1814  t workspace dev
+ 1815  t workspace new  dev
+ 1816  t workspace list
+ 1817  ls
+ 1818  tree
+ 1819  t state list
+ 1820  t apply
+ 1821  t state list
+ 1822  tree
+ 1823  t workspace new  qa
+ 1824  t apply
+ 1825  t state list
+ 1826  tress
+ 1827  tree
+ 1828  t workspace list
+ 1829  terraform workspace select dev
+ 1830  t workspace list
+ 1831  terraform workspace select default
+ 1832  t workspace list
+ 1833  tree
+ 1834  t destroy
+ 1835  t state list
+ 1836  terraform workspace select dev
+ 1837  t state list
+ 1838  tree
+ 1839  cat  terraform.tfstate
+ 1840  cat  terraform.tfstate.d/dev/terraform.tfstate
+ 1841  cat  terraform.tfstate.d/qa/terraform.tfstate
+
+	
+		

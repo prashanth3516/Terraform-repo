@@ -1,0 +1,65 @@
+Agenda
+	AZ CLI
+		helps to interact with Azure services to manage resources
+			login
+				az login
+			account
+				az account list
+				az account set --subsciprion <subscription id>
+			resource group
+				az group list
+				az group create -n test -l westus
+			virtual machine
+				az vm list
+				az vm list -o table
+				az vm start -g <rgname> -n <vmname>
+				az vm show -g <rgname> -n <vmname> 
+				
+				az vm create -h
+				az vm create -g test -n vm1
+			
+		 
+			ad(entra id)
+				az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/bccafdc0-1217-4202-883e-2c0dbce2e3cb"
+				
+{
+  "appId": "90638e0f-5sfd24e-45ea-b751-7f200d04a9c9",
+  "displayName": "azursfde-cli-2025-07-26-02-54-42",
+  "password": "35M8Q~ssdfGvaujHKbwi0jDgLxkMvj7VX0PqnSYgabq",
+  "tenant": "c9947813df-2c41-49f2-937e-98e030d55bae"
+}
+				
+export ARM_CLIENT_ID="f7d3c12ff-62bb-4e72-882e-a4c75b932351"
+export ARM_CLIENT_SECRET="8lSa8Q~1mTznEYwl4ys6bTf4yjH7FGJNdZHf5Nc0_"
+export ARM_TENANT_ID="c99478af13-2c41-49f2-937e-98e030d55bae"
+export ARM_SUBSCRIPTION_ID="afbccafdc0-1217-4202-883e-2c0dbce2e3cb"
+
+
+subscription_id = "bccafdfdc0-1217-4202-883e-2c0dbce2e3cb"
+  client_id       = "9af0638e0f-524e-45ea-b751-7f200d04a9c9"
+  client_secret   = "35dffM8Q~sGvaujHKbwi0jDgLxkMvj7VX0PqnSYgabq"
+  tenant_id       = "c99af47813-2c41-49f2-937e-98e030d55bae"
+  
+  
+ --------------------
+ terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "4.37.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+  subscription_id = "bccafdc0-1217-4202-883e-2c0dbce2e3cb"
+  client_id       = "90638e0f-524e-45ea-b751-7f200d04a9c9"
+  client_secret   = "35M8Q~sGvaujHKbwi0jDgLxkMvj7VX0PqnSYgabq"
+  tenant_id       = "c9947813-2c41-49f2-937e-98e030d55bae"
+}
+
+resource azurerm_resource_group rg {
+        location = "westus"
+        name="testtf123"
+}

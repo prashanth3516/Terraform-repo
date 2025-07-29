@@ -1,0 +1,88 @@
+Agenda
+	Architecture
+		client -> cli to interact with tf core (all instructions)
+		workspace -> folder/location where all execution takes place 
+		core -> responsible for the management(create/modify/delete) of any resource using config file
+		config file -> definition of what resources to be managed
+		registry -> cloud based to get the capabalities of a provider
+		state -> outcome of a tf exeution(based on config)
+		component -> provider/resource/data which is controlled/managed by core
+		
+	Flows
+		init flows
+			cli -> core -> instansite
+			core -> create workspace 
+			core <- read config and list providers/modules
+			core -> rgistry <- download providers
+			
+		apply
+			cli -> core -> apply config and create resource
+			core <- read the config
+			core -> provider to create component
+			provider -> resource (creates the resources)
+			provider -> core status of the resource
+			core -> state file  -> persist the stae of the component
+		
+	Providers
+		libraries or plugins which are responsible for creationg of the resources
+			Registry -> cloud based pacage source which are needed by terraform
+				registry.terrafom.io
+					provider/librares/modules
+						official providers
+							if developed and managed by hashicop
+						partner providers
+							if provider is developed by other companies (accodign to hashicop standard), appproved/released by hashicop
+						unpublished providers
+							developed by individuals/small startups not up to the standard but still available on registry (risk to use)
+							
+		terraform {
+			required_providers {
+				local = {
+					source = "hashicorp/local"
+					version = "<=2.5.2"
+				}
+				random = {
+					source = "hashicorp/random"
+				}
+				azure = {
+					source = "hashicorp/azurerm"
+				}
+			}
+		}
+	
+
+task -> subsequent apply, destroy
+	explore these providers ->  local, random, null
+
+suggestion -> craete a github repo, checkin all config file on daily basis
+
+--------------------------
+resource "local_file" "foo" {
+  source  = "/home/e182114/slice.properties"
+  filename = "a/b/c/d/foo.bar"
+}
+
+resource "random_string" "random" {
+  length           = 25
+}
+terraform {
+  required_providers {
+    local = {
+      source  = "hashicorp/local"
+      version = "<2.5.2"
+    }
+
+    random = {
+      source = "hashicorp/random"
+
+    }
+
+    azure = {
+      source = "hashicorp/azurerm"
+    }
+  }
+}
+=================
+
+
+

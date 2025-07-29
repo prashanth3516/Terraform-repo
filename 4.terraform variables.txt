@@ -1,0 +1,123 @@
+Agenda
+	Variable
+		input variable
+			place holder to hava value in the script which can be injected from outside before execution
+				
+				variable <varname>{
+					default = <var value>
+					type = <va type>
+				}
+				
+				variable filename {
+					default = "abc.txt"
+				}
+			
+				variable content {
+				}
+		
+		output variable
+			these are the values set during execution and avaiable after completion
+				output <varname>{
+					value = <source>
+				}
+				
+				output randomstr{
+					value = random_string.random.id
+				}
+				
+				output str{
+					value = "test"
+				}
+				local_file.filecreateion.id
+		
+		local variables
+			available only during execution and with in the tf script
+				locals {
+					filename = "test123"
+					content = "a123"
+				}
+		
+terraform output <varname>
+terraform output str
+
+terraform state list
+terraform state show <res name>		
+terraform state show local_file.filecreateion		
+
+
+resource "local_file" "filecreateion" {
+  filename = var.filename
+  content  = var.content
+}
+
+
+resource "local_file" "filecreateion1" {
+  filename = local.filename
+  content  = local.content
+}
+
+output str{
+					value = local_file.filecreateion.id
+				}
+
+		Injecting values t a variable (pricidence level)
+			1. CLI/interactive based -> when default value is not defined
+			2. default -> default value defined in the variable definition
+			3. environment > define the value in env and inject during execution
+				export TF_VAR_<var name>=<value>
+				export TF_VAR_filename="environment.txt"
+			4. terraform.tfvars  -> define value for variable 
+				<varname>=<value>
+			5. <anyname>.auto.tfvars -> adi.auto.tfvars (alphabetical order)
+				<varname>=<value>
+				adi.auto.tfvars
+					filename="adi"
+				karthik.auto.tfvars
+					filename="karthik"
+			6. command line -> inject via apply command (highest presidance)
+					terraform apply <variable injection>
+					inline commad (values injected at the end will have highest precidance)
+						terraform apply -var <varname>=<value>
+						terraform apply -var filename="command.txt" -var filename="command1.txt" -var content ="contentfrom cli"
+						
+					filebased
+						terraform apply -var-file <path for the file>
+						terraform apply -var-file production.properties
+						terraform apply -var-file dev.properties
+		
+task: inject values from different modes to different resources of random
+
+----------------------------
+terraform.tfvars ,dev.properties, karthik.auto.tfvars
+filename="tfvars.txt"
+content="from tfvars"
+
+
+resource "local_file" "filecreateion" {
+  filename = var.filename
+  content  = var.content
+}
+
+
+resource "local_file" "filecreateion1" {
+  filename = local.filename
+  content  = local.content
+}
+
+output "str" {
+  value = local_file.filecreateion.id
+}
+
+locals {
+  filename = "test123"
+  content  = "a123"
+}
+
+
+variable "filename" {
+  default = "abc324562.txt"
+}
+
+variable "content" {
+default = "content from default"
+}
