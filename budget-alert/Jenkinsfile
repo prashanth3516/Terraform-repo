@@ -1,57 +1,27 @@
 pipeline {
     agent any
 
-    environment {
-        // Use Jenkins credentials IDs for Azure service principal
-        ARM_SUBSCRIPTION_ID = credentials('6babc3f8-793c-4200-9aa3-51e8d33ff572')
-        ARM_CLIENT_ID       = credentials('c421e394-9c7d-43f8-9b93-76ea734b2afb')
-        ARM_CLIENT_SECRET   = credentials('vD18Q~yQD-6QLeTvTNP5Kh9-BSdElQpEPCdD6anY')
-        // If you have tenant ID as credential, add it here; otherwise omit
-        ARM_TENANT_ID       = credentials('7597b8dc-1559-4285-901d-856b7ac20009')
+    tools {
+        terraform 'Terraform'
     }
 
     stages {
-        stage('Check Terraform & PATH') {
-            steps {
-                // Ensure Jenkins can see terraform
-                withEnv(["PATH+TERRAFORM=/usr/local/bin"]) {
-                    sh 'terraform version'
-                    sh 'echo $PATH'
-                }
-            }
-        }
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform Init/Plan/Apply') {
             steps {
-                withEnv(["PATH+TERRAFORM=/usr/local/bin"]) {
+                withCredentials([
+                    string(credentialsId: 'azure-subscription-id', variable: 'ARM_SUBSCRIPTION_ID'),
+                    string(credentialsId: 'azure-client-id', variable: 'ARM_CLIENT_ID'),
+                    string(credentialsId: 'azure-client-secret', variable: 'ARM_CLIENT_SECRET'),
+                    string(credentialsId: 'azure-tenant-id', variable: 'ARM_TENANT_ID')
+                ]) {
                     sh 'terraform init'
-                }
-            }
-        }
-
-        stage('Terraform Plan') {
-            steps {
-                withEnv(["PATH+TERRAFORM=/usr/local/bin"]) {
-                    sh '''
-                        terraform plan -out=tfplan \
-                        -var subscription_id=$ARM_SUBSCRIPTION_ID \
-                        -var client_id=$ARM_CLIENT_ID \
-                        -var client_secret=$ARM_CLIENT_SECRET \
-                        -var tenant_id=$ARM_TENANT_ID
-                    '''
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                withEnv(["PATH+TERRAFORM=/usr/local/bin"]) {
+                    sh 'terraform plan -out=tfplan'
                     sh 'terraform apply -auto-approve tfplan'
                 }
             }
