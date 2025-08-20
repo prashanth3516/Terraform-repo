@@ -35,7 +35,6 @@ pipeline {
         stage('Terraform Destroy') {
             steps {
                 script {
-                    // Optional: manual confirmation before destroying
                     def destroyConfirm = input(
                         id: 'confirmDestroy', 
                         message: 'Do you want to destroy resources?', 
