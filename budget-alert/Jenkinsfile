@@ -2,45 +2,76 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/usr/bin/terraform:${env.PATH}"  // Ensure Jenkins can find terraform
-        ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')
-        ARM_CLIENT_ID       = credentials('azure-client-id')
-        ARM_CLIENT_SECRET   = credentials('azure-client-secret')
-        ARM_TENANT_ID       = credentials('azure-tenant-id')
+        ARM_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')   // stored in Jenkins credentials
+        ARM_CLIENT_ID       = credentials('ARM_CLIENT_ID')
+        ARM_CLIENT_SECRET   = credentials('ARM_CLIENT_SECRET')
+        ARM_TENANT_ID       = credentials('ARM_TENANT_ID')
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/prashanth3516/Terraform-repo.git', branch: 'main', credentialsId: 'a'
+                git branch: 'main', url: 'https://github.com/prashanth3516/Terraform-repo.git'
             }
         }
 
-        stage('terraform Init') {
+        stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                sh '''
+                cd terraform/vmss-alert
+                terraform init
+                '''
             }
         }
 
-        stage('terraform Plan') {
+        stage('Terraform Validate') {
             steps {
-                sh 'terraform plan -out=tfplan'
+                sh '''
+                cd terraform/vmss-alert
+                terraform validate
+                '''
             }
         }
 
-        stage('terraform Apply') {
+        stage('Terraform Plan') {
             steps {
-                sh 'terraform apply -auto-approve tfplan'
+                sh '''
+                cd terraform/vmss-alert
+                terraform plan -out=tfplan
+                '''
             }
         }
-    }
 
-    post {
-        always {
-            echo 'terraform pipeline finished.'
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                        cd terraform/vmss-alert
+                        terraform apply -auto-approve tfplan
+                        '''
+                    } catch (Exception e) {
+                        echo "Terraform apply failed – trying import..."
+                        sh '''
+                        cd terraform/vmss-alert
+                        terraform import azurerm_consumption_budget_subscription.vmss_budget "/subscriptions/${ARM_SUBSCRIPTION_ID}/providers/Microsoft.Consumption/budgets/vmss-budget-alert" || true
+                        terraform apply -auto-approve tfplan
+                        '''
+                    }
+                }
+            }
         }
-        failure {
-            echo 'terraform pipeline failed!'
+
+        stage('Terraform Destroy') {
+            when {
+                expression { return params.DESTROY == true }  // optional toggle
+            }
+            steps {
+                sh '''
+                cd terraform/vmss-alert
+                terraform destroy -auto-approve
+                '''
+            }
         }
     }
 }
