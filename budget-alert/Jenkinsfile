@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/usr/bin:${env.PATH}"  // Ensure Jenkins can find terraform
+        PATH = "/usr/bin/terraform:${env.PATH}"  // Ensure Jenkins can find terraform
         ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')
         ARM_CLIENT_ID       = credentials('azure-client-id')
         ARM_CLIENT_SECRET   = credentials('azure-client-secret')
@@ -16,19 +16,19 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('terraform Init') {
             steps {
                 sh 'terraform init'
             }
         }
 
-        stage('Terraform Plan') {
+        stage('terraform Plan') {
             steps {
                 sh 'terraform plan -out=tfplan'
             }
         }
 
-        stage('Terraform Apply') {
+        stage('terraform Apply') {
             steps {
                 sh 'terraform apply -auto-approve tfplan'
             }
@@ -37,10 +37,10 @@ pipeline {
 
     post {
         always {
-            echo 'Terraform pipeline finished.'
+            echo 'terraform pipeline finished.'
         }
         failure {
-            echo 'Terraform pipeline failed!'
+            echo 'terraform pipeline failed!'
         }
     }
 }
