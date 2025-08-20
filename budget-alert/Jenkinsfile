@@ -25,23 +25,6 @@ pipeline {
                 sh 'terraform apply -auto-approve tfplan'
             }
         }
-
-        stage('Terraform Destroy') {
-            steps {
-                script {
-                    def destroyConfirm = input(
-                        id: 'confirmDestroy', 
-                        message: 'Do you want to destroy resources?', 
-                        parameters: [booleanParam(defaultValue: false, description: 'Check to destroy', name: 'DESTROY')]
-                    )
-                    if (destroyConfirm) {
-                        sh 'terraform destroy -auto-approve'
-                    } else {
-                        echo 'Skipping destroy stage.'
-                    }
-                }
-            }
-        }
     }
 
     post {
