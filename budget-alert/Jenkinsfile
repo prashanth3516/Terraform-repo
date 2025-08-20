@@ -2,12 +2,14 @@ pipeline {
     agent any
 
     environment {
-        // Optional: If you want, you can also add PATH
-        PATH = "/usr/local/bin:${env.PATH}"
+        ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')
+        ARM_CLIENT_ID       = credentials('azure-client-id')
+        ARM_CLIENT_SECRET   = credentials('azure-client-secret')
+        ARM_TENANT_ID       = credentials('azure-tenant-id')
+        TERRAFORM_PATH      = '/usr/local/bin/terraform'  // Absolute path to terraform
     }
 
     stages {
-
         stage('Checkout SCM') {
             steps {
                 checkout([$class: 'GitSCM',
@@ -20,38 +22,34 @@ pipeline {
             }
         }
 
-        stage('Terraform Init/Plan/Apply') {
+        stage('Terraform Init') {
             steps {
-                // Inject Azure credentials
-                withCredentials([
-                    string(credentialsId: 'azure-subscription-id', variable: 'ARM_SUBSCRIPTION_ID'),
-                    string(credentialsId: 'azure-client-id', variable: 'ARM_CLIENT_ID'),
-                    string(credentialsId: 'azure-client-secret', variable: 'ARM_CLIENT_SECRET'),
-                    string(credentialsId: 'azure-tenant-id', variable: 'ARM_TENANT_ID')
-                ]) {
-                    script {
-                        // Use Terraform installed in Jenkins (Global Tool)
-                        def tfHome = tool name: 'Terraform', type: 'terraform'
+                sh "${TERRAFORM_PATH} init"
+            }
+        }
 
-                        // Run Terraform commands
-                        sh "${tfHome}/terraform init"
-                        sh "${tfHome}/terraform plan"
-                        sh "${tfHome}/terraform apply -auto-approve"
-                    }
-                }
+        stage('Terraform Plan') {
+            steps {
+                sh "${TERRAFORM_PATH} plan -out=tfplan"
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                sh "${TERRAFORM_PATH} apply -auto-approve tfplan"
             }
         }
     }
 
     post {
+        always {
+            echo 'Pipeline finished.'
+        }
         success {
-            echo 'Terraform pipeline completed successfully!'
+            echo 'Terraform applied successfully!'
         }
         failure {
             echo 'Terraform pipeline failed!'
-        }
-        always {
-            echo 'Pipeline finished.'
         }
     }
 }
