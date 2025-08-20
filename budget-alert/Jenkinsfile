@@ -1,24 +1,43 @@
 pipeline {
     agent any
-    
+
+    environment {
+        // Optional: If you want, you can also add PATH
+        PATH = "/usr/local/bin:${env.PATH}"
+    }
+
     stages {
-        stage('Checkout') {
+
+        stage('Checkout SCM') {
             steps {
-                checkout scm
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/prashanth3516/Terraform-repo.git',
+                        credentialsId: 'a'
+                    ]]
+                ])
             }
         }
 
         stage('Terraform Init/Plan/Apply') {
             steps {
+                // Inject Azure credentials
                 withCredentials([
                     string(credentialsId: 'azure-subscription-id', variable: 'ARM_SUBSCRIPTION_ID'),
                     string(credentialsId: 'azure-client-id', variable: 'ARM_CLIENT_ID'),
                     string(credentialsId: 'azure-client-secret', variable: 'ARM_CLIENT_SECRET'),
                     string(credentialsId: 'azure-tenant-id', variable: 'ARM_TENANT_ID')
                 ]) {
-                    sh 'terraform init'
-                    sh 'terraform plan -out=tfplan'
-                    sh 'terraform apply -auto-approve tfplan'
+                    script {
+                        // Use Terraform installed in Jenkins (Global Tool)
+                        def tfHome = tool name: 'Terraform', type: 'terraform'
+
+                        // Run Terraform commands
+                        sh "${tfHome}/terraform init"
+                        sh "${tfHome}/terraform plan"
+                        sh "${tfHome}/terraform apply -auto-approve"
+                    }
                 }
             }
         }
@@ -26,10 +45,13 @@ pipeline {
 
     post {
         success {
-            echo 'Terraform applied successfully!'
+            echo 'Terraform pipeline completed successfully!'
         }
         failure {
             echo 'Terraform pipeline failed!'
+        }
+        always {
+            echo 'Pipeline finished.'
         }
     }
 }
