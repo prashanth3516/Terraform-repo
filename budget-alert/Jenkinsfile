@@ -5,7 +5,6 @@ pipeline {
         ARM_SUBSCRIPTION_ID = credentials('6babc3f8-793c-4200-9aa3-51e8d33ff572')
         ARM_CLIENT_ID       = credentials('c421e394-9c7d-43f8-9b93-76ea734b2afb')
         ARM_CLIENT_SECRET   = credentials('vD18Q~yQD-6QLeTvTNP5Kh9-BSdElQpEPCdD6anY')
-        ARM_TENANT_ID       = credentials('7597b8dc-1559-4285-901d-856b7ac20009')
     }
 
     stages {
@@ -23,23 +22,41 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                sh "terraform plan -out=tfplan"
+                sh 'terraform plan -out=tfplan'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh "terraform apply -auto-approve tfplan"
+                sh 'terraform apply -auto-approve tfplan'
+            }
+        }
+
+        stage('Terraform Destroy') {
+            steps {
+                script {
+                    // Optional: manual confirmation before destroying
+                    def destroyConfirm = input(
+                        id: 'confirmDestroy', 
+                        message: 'Do you want to destroy resources?', 
+                        parameters: [booleanParam(defaultValue: false, description: 'Check to destroy', name: 'DESTROY')]
+                    )
+                    if (destroyConfirm) {
+                        sh 'terraform destroy -auto-approve'
+                    } else {
+                        echo 'Skipping destroy stage.'
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Terraform applied successfully!'
+            echo 'Terraform pipeline completed successfully!'
         }
         failure {
-            echo 'Terraform apply failed!'
+            echo 'Terraform pipeline failed!'
         }
     }
 }
