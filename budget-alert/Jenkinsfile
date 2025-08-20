@@ -4,32 +4,40 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Checkout the repository
                 checkout scm
+            }
+        }
+
+        stage('Terraform Version') {
+            steps {
+                // Verify Terraform is available
+                sh '/usr/local/bin/terraform version'
             }
         }
 
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                sh '/usr/local/bin/terraform init'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan -out=tfplan'
+                sh '/usr/local/bin/terraform plan -out=tfplan'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh 'terraform apply -auto-approve tfplan'
+                sh '/usr/local/bin/terraform apply -auto-approve tfplan'
             }
         }
     }
 
     post {
         success {
-            echo 'Terraform pipeline completed successfully!'
+            echo 'Terraform applied successfully!'
         }
         failure {
             echo 'Terraform pipeline failed!'
