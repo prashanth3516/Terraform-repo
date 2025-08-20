@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        ARM_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')   // stored in Jenkins credentials
+        ARM_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
         ARM_CLIENT_ID       = credentials('ARM_CLIENT_ID')
         ARM_CLIENT_SECRET   = credentials('ARM_CLIENT_SECRET')
         ARM_TENANT_ID       = credentials('ARM_TENANT_ID')
@@ -18,7 +18,7 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 sh '''
-                cd terraform/vmss-alert
+                cd budget-alert
                 terraform init
                 '''
             }
@@ -27,7 +27,7 @@ pipeline {
         stage('Terraform Validate') {
             steps {
                 sh '''
-                cd terraform/vmss-alert
+                cd budget-alert
                 terraform validate
                 '''
             }
@@ -36,7 +36,7 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 sh '''
-                cd terraform/vmss-alert
+                cd budget-alert
                 terraform plan -out=tfplan
                 '''
             }
@@ -47,13 +47,13 @@ pipeline {
                 script {
                     try {
                         sh '''
-                        cd terraform/vmss-alert
+                        cd budget-alert
                         terraform apply -auto-approve tfplan
                         '''
                     } catch (Exception e) {
                         echo "Terraform apply failed – trying import..."
                         sh '''
-                        cd terraform/vmss-alert
+                        cd budget-alert
                         terraform import azurerm_consumption_budget_subscription.vmss_budget "/subscriptions/${ARM_SUBSCRIPTION_ID}/providers/Microsoft.Consumption/budgets/vmss-budget-alert" || true
                         terraform apply -auto-approve tfplan
                         '''
@@ -64,11 +64,11 @@ pipeline {
 
         stage('Terraform Destroy') {
             when {
-                expression { return params.DESTROY == true }  // optional toggle
+                expression { return params.DESTROY == true }
             }
             steps {
                 sh '''
-                cd terraform/vmss-alert
+                cd budget-alert
                 terraform destroy -auto-approve
                 '''
             }
