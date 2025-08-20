@@ -6,47 +6,37 @@ pipeline {
         ARM_CLIENT_ID       = credentials('azure-client-id')
         ARM_CLIENT_SECRET   = credentials('azure-client-secret')
         ARM_TENANT_ID       = credentials('azure-tenant-id')
-        TERRAFORM_PATH      = '/usr/local/bin/terraform'  // Absolute path to terraform
     }
 
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/prashanth3516/Terraform-repo.git',
-                        credentialsId: 'a'
-                    ]]
-                ])
+                git url: 'https://github.com/prashanth3516/Terraform-repo.git', branch: 'main', credentialsId: 'a'
             }
         }
 
         stage('Terraform Init') {
             steps {
-                sh "${TERRAFORM_PATH} init"
+                sh '/usr/bin/terraform init'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh "${TERRAFORM_PATH} plan -out=tfplan"
+                sh '/usr/bin/terraform plan -out=tfplan'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh "${TERRAFORM_PATH} apply -auto-approve tfplan"
+                sh '/usr/bin/terraform apply -auto-approve tfplan'
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline finished.'
-        }
-        success {
-            echo 'Terraform applied successfully!'
+            echo 'Terraform pipeline finished.'
         }
         failure {
             echo 'Terraform pipeline failed!'
