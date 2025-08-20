@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/prashanth3516/Terraform-repo.git'
+                checkout scm
             }
         }
 
@@ -23,26 +23,23 @@ pipeline {
 
         stage('Terraform Plan') {
             steps {
-                sh '''
-                terraform plan \
-                  -var subscription_id=$ARM_SUBSCRIPTION_ID \
-                  -var client_id=$ARM_CLIENT_ID \
-                  -var client_secret=$ARM_CLIENT_SECRET \
-                  -var tenant_id=$ARM_TENANT_ID
-                '''
+                sh "terraform plan -out=tfplan"
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh '''
-                terraform apply -auto-approve \
-                  -var subscription_id=$ARM_SUBSCRIPTION_ID \
-                  -var client_id=$ARM_CLIENT_ID \
-                  -var client_secret=$ARM_CLIENT_SECRET \
-                  -var tenant_id=$ARM_TENANT_ID
-                '''
+                sh "terraform apply -auto-approve tfplan"
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform applied successfully!'
+        }
+        failure {
+            echo 'Terraform apply failed!'
         }
     }
 }
